@@ -5,7 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
 import BackgroundEffects from "../components/BackgroundEffects";
 import { MusicProvider } from "../components/MusicProvider";
-import FloatingPlayer from "../components/FloatingPlayer";
+import AutoPlayMusic from "../components/AutoPlayMusic";
 import { siteConfig } from "../siteConfig";
 import ClickEffect from "../components/ClickEffect";
 import BackgroundSlider from "../components/BackgroundSlider";
@@ -101,9 +101,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 {children}
               </div>
 
-              <div className="hidden md:block">
-                <FloatingPlayer />
-              </div>
+              {/* 🎵 极简背景音乐（自动播放 /bg-music.mp3） */}
+              <AutoPlayMusic />
 
               <div className="hidden md:block">
                 <GlobalToolbox />
