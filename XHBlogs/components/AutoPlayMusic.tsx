@@ -1,63 +1,51 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 
+/**
+ * 🎵 极简背景音乐（手动播放）
+ * - 不再自动播放，避免与 /music 页面冲突
+ * - 右下角迷你按钮：用户手动点击播放/暂停 /bg-music.mp3
+ * - 零依赖：只有一个 <audio>，不加载任何外部资源
+ */
 export default function AutoPlayMusic() {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = 0.6;
+    const audio = new Audio("/bg-music.mp3");
     audio.loop = true;
+    audio.volume = 0.5;
+    audioRef.current = audio;
 
-    const timer = setTimeout(() => {
-      if (audio && !isPlaying) {
-        audio.play().then(() => setIsPlaying(true)).catch(() => {
-          const startPlay = () => {
-            if (audio && !isPlaying) {
-              audio.play().then(() => setIsPlaying(true)).catch(() => {});
-            }
-            document.removeEventListener("click", startPlay);
-            document.removeEventListener("touchstart", startPlay);
-            document.removeEventListener("keydown", startPlay);
-          };
-          document.addEventListener("click", startPlay);
-          document.addEventListener("touchstart", startPlay);
-          document.addEventListener("keydown", startPlay);
-        });
-      }
-    }, 2500);
-
-    return () => clearTimeout(timer);
+    return () => {
+      audio.pause();
+      audio.src = "";
+    };
   }, []);
 
-  const togglePlay = () => {
+  const toggle = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
+    if (audio.paused) {
+      audio
+        .play()
+        .then(() => setPlaying(true))
+        .catch(() => {});
     } else {
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+      audio.pause();
+      setPlaying(false);
     }
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999]">
-      <audio ref={audioRef} src="/bg-music.mp3" />
-      <button
-        onClick={togglePlay}
-        className="w-12 h-12 rounded-full bg-indigo-500/80 backdrop-blur-xl border border-white/30 shadow-2xl flex items-center justify-center text-white hover:scale-110 transition-transform cursor-pointer
-        "
-      >
-        {isPlaying ? (
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-        ) : (
-          <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        )}
-      </button>
-    </div>
+    <button
+      onClick={toggle}
+      aria-label={playing ? "暂停音乐" : "播放音乐"}
+      title={playing ? "暂停音乐" : "播放音乐"}
+      className="fixed bottom-6 right-6 z-[9999] flex h-11 w-11 items-center justify-center rounded-full bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-200 text-base shadow-xl backdrop-blur-xl border border-white/40 dark:border-white/10 transition-all duration-300 hover:scale-110 active:scale-95"
+    >
+      {playing ? "⏸" : "▶"}
+    </button>
   );
 }
-
