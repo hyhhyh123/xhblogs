@@ -256,6 +256,10 @@ export function MusicProvider({ children }: { children: ReactNode }) {
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded} // 使用我们重写的结束处理
           onLoadedMetadata={handleTimeUpdate}
+          onError={() => {
+            setIsPlaying(false);
+            setCurrentLyric('♪ 当前曲目暂无法播放（可能是 VIP / 版权受限）♪');
+          }}
         />
       )}
     </MusicContext.Provider>
