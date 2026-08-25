@@ -28,6 +28,9 @@ export default function Comments() {
       // 👇 指向我们自己的同源 API，彻底告别跨域和第三方拦截！
       proxy: '/api/github',
 
+      // 👇 🌟 核心修复：固定回调地址，避免 GitHub 因 redirect_uri 不匹配而拒绝授权
+      redirect_uri: 'https://xhblogs-hyh10.vercel.app/oauth/callback',
+
       id: (pathname.replace(/\/$/, '') || '/').substring(0, 49),
       distractionFreeMode: false,
     });
