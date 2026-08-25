@@ -28,9 +28,6 @@ export default function Comments() {
       // 👇 指向我们自己的同源 API，彻底告别跨域和第三方拦截！
       proxy: '/api/github',
 
-      // 👇 🌟 核心修复：固定回调地址，避免 GitHub 因 redirect_uri 不匹配而拒绝授权
-      redirect_uri: 'https://xhblogs-hyh10.vercel.app/oauth/callback',
-
       id: (pathname.replace(/\/$/, '') || '/').substring(0, 49),
       distractionFreeMode: false,
     });
@@ -67,7 +64,7 @@ export default function Comments() {
         }
         .custom-gitalk-glass .gt-container .gt-header-textarea:focus {
           background: rgba(255, 255, 255, 0.2) !important;
-          border-color: #6366f1 !important; /* Indigo 500 */
+          border-color: #6366f1 !important;
           box-shadow: 0 0 15px rgba(99, 102, 241, 0.3) !important;
         }
         .custom-gitalk-glass .gt-container .gt-header-preview {
