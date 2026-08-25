@@ -101,8 +101,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 {children}
               </div>
 
-              {/* 🎵 极简背景音乐（自动播放 /bg-music.mp3） */}
-              <AutoPlayMusic />
+              {/* 🎵 极简背景音乐按钮（可在 siteConfig.showBackgroundMusicButton 打开） */}
+              {siteConfig.showBackgroundMusicButton && <AutoPlayMusic />}
 
               <div className="hidden md:block">
                 <GlobalToolbox />
