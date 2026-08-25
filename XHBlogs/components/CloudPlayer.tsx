@@ -48,31 +48,15 @@ export default function CloudPlayer() {
     return (
       <div
         onClick={() => router.push('/music')}
-        className="h-full w-full rounded-3xl bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl transition-all duration-700 hover:scale-[1.02] cursor-pointer overflow-hidden relative group"
+        className="h-full w-full rounded-3xl overflow-hidden relative group cursor-pointer transition-all duration-700 hover:scale-[1.02]"
       >
-        {/* 背景：同一张封面放大模糊，填满整个长方形格子 */}
+        {/* 纯图片铺满整张卡片，无边框、无文字、无渐变 */}
         <img
           src="/music-cover.jpg"
           alt=""
           aria-hidden
-          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-
-        {/* 中间：正方形封面完整显示，不裁切 */}
-        <div className="absolute inset-0 flex items-center justify-center p-5 z-10">
-          <img
-            src="/music-cover.jpg"
-            alt="太聪明 - 陈绮贞"
-            className="h-full w-auto max-w-full object-contain rounded-2xl shadow-2xl border border-white/50 dark:border-white/10"
-          />
-        </div>
-
-        {/* 底部渐变遮罩 + 文字 */}
-        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-16 pb-5 px-5 text-center">
-          <span className="inline-block text-[10px] font-black text-indigo-300 tracking-widest uppercase bg-white/10 backdrop-blur-sm px-2 py-0.5 rounded-sm mb-2">Now Playing</span>
-          <h3 className="text-xl font-bold text-white truncate drop-shadow-md">太聪明</h3>
-          <p className="text-sm text-white/90 font-medium truncate drop-shadow-md">陈绮贞 · 《Groupies 吉他手》</p>
-        </div>
       </div>
     );
   }
