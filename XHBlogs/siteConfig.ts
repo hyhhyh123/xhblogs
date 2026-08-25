@@ -29,7 +29,7 @@ export const siteConfig = {
 
   // 5. 首页照片墙预览图
   photoWallImage: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1000&auto=format&fit=crop",
-  cloudMusicIds: [287398],
+  cloudMusicIds: [1330348068, 2025533834, 465921195, 1867217766, 1425814935, 32835565],
   social: {
     github: "hyhhyh123",
     gitee: "",
