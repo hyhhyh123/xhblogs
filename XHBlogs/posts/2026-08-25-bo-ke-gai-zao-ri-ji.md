@@ -86,6 +86,18 @@ redirect_uri mismatch
 
 折腾中发现本机 `.git-credentials` 里存着 GitHub 凭据,之后我直接用 GitHub Contents API 把文件推送到仓库,再也不用在浏览器里手动拖文件上传了。对经常改博客的人,这招真的省事。
 
+## 6. 最隐蔽的坑:中文文件名让 Vercel 构建失败
+
+写完后把文章推上去,文章却**死活上不了线**。在 GitHub 后台翻 commit 状态才发现:Vercel 报的部署状态是 `failure`,而且只有带这篇中文文件名文章的提交才失败,其他改动都正常。
+
+排查一圈才定位到根因:**`posts/` 目录下的 md 文件用了中文文件名(比如 `2026-08-25-博客改造日记.md`),Vercel 的 Linux 构建环境会构建失败。** 本地 Windows 上 `next build` 完全正常,纯属环境差异——所以本地测试怎么测都是绿的,一推线上就挂。
+
+博客已经在线上跑的前几篇文章其实**全都是拼音文件名**(`bo-ke-da-jian-ji-lu`、`di-yi-pian-bo-ke` 这种),只是我本地改成了中文名、一直没察觉。把文件重命名为拼音 `2026-08-25-bo-ke-gai-zao-ri-ji.md`(和线上其他文章保持一致)后,重新提交,Vercel 一分钟就构建成功,文章立刻上线。
+
+顺手还发现本机项目目录的 `.git` 已经损坏(`fatal: bad object HEAD`),所以之前那套 git 推送流程全都失效,全靠 GitHub API 逐文件推。
+
+**经验总结:给这个博客发新文章,文件名必须用拼音(如 `YYYY-MM-DD-pinyin-slug.md`);frontmatter 里的 title、description、正文用中文都没问题,只有"文件名"不能是中文。**
+
 ## 总结
 
 今天学到的东西:
@@ -95,5 +107,6 @@ redirect_uri mismatch
 3. **Giscus 主题用 CSS 变量驱动,不是类选择器**
 4. **Giscus 自定义主题缓存很顽固,优先用官方内置主题**
 5. **Next.js SPA 下,动态组件要监听路由变化重新初始化**,不能指望脚本只加载一次
+6. **博客 `posts/` 里的 md 文件名必须用拼音,中文文件名会让 Vercel(Linux)构建失败**,本地 Windows 构建测不出来
 
 改博客的过程就是不断踩坑的过程,但每次踩完都更懂一点。下次再接再厉。
