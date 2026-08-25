@@ -25,37 +25,37 @@ export default function MusicClient() {
 
   const [parsedLyrics, setParsedLyrics] = useState<any[]>([]);
   const hasAutoStarted = useRef(false);
-  const hasEverPlayed = useRef(false);
 
-  useEffect(() => {
-    if (isPlaying && !hasEverPlayed.current) hasEverPlayed.current = true;
-  }, [isPlaying]);
+  // 把 isPlaying 同步到 ref，供交互回调实时读取，避免「假播放」误判
+  const isPlayingRef = useRef(false);
+  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
 
-  // 🎵 进入音乐馆自动播放当前歌曲（仅触发一次）；浏览器拦截时，用户首次交互后补播
+  // 🎵 进入音乐馆自动播放当前歌曲（仅触发一次）；若被浏览器自动播放策略拦截，
+  //    则在用户首次交互（点击 / 触摸 / 按键）后补播。
   useEffect(() => {
     if (!isLoading || !currentSong || hasAutoStarted.current) return;
     hasAutoStarted.current = true;
-    togglePlay();
 
-    const onInteract = () => {
-      if (hasEverPlayed.current) { cleanup(); return; }
-      togglePlay();
-      cleanup();
-    };
+    const tryStart = () => { if (!isPlayingRef.current) togglePlay(); };
     const cleanup = () => {
       document.removeEventListener("click", onInteract);
       document.removeEventListener("touchstart", onInteract);
       document.removeEventListener("keydown", onInteract);
     };
-    // 稍后再绑定，避免与本次渲染的其它点击冲突
+    const onInteract = () => { cleanup(); tryStart(); };
+
+    // 先尝试直接自动播放（常访问站点浏览器可能放行）
+    togglePlay();
+
+    // 被拦截时：稍后绑定首次交互补播
     const t = setTimeout(() => {
       document.addEventListener("click", onInteract);
       document.addEventListener("touchstart", onInteract);
       document.addEventListener("keydown", onInteract);
-    }, 400);
+    }, 600);
 
     return () => { clearTimeout(t); cleanup(); };
-  }, [isLoading, currentSong, isPlaying, togglePlay]);
+  }, [isLoading, currentSong, togglePlay]);
 
   useEffect(() => {
     if (!currentSong) {
@@ -181,6 +181,12 @@ export default function MusicClient() {
       </div>
 
       <Navbar />
+
+      {!isPlaying && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
+          点击页面任意位置即可播放 ♪
+        </div>
+      )}
 
       <PageTransition>
         <div className="w-full max-w-7xl mx-auto mt-24 md:mt-28 px-4 sm:px-6 md:px-10 relative z-10">
