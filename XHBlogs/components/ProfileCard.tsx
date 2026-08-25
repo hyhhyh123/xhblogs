@@ -48,9 +48,9 @@ export default function ProfileCard({ postCount, chatterCount, photoCount }: { p
         </div>
 
         <div className="flex gap-2 md:gap-3 flex-wrap justify-center md:justify-end w-full md:w-auto" onClick={(e) => e.stopPropagation()}>
-          <SocialBtn type="github" url={siteConfig.social?.github} />
-          <SocialBtn type="gitee" url={siteConfig.social?.gitee} />
-          <SocialBtn type="google" url={siteConfig.social?.google} />
+          <SocialBtn type="github" onClick={() => copyToClipboard(`https://github.com/${siteConfig.social?.github || 'hyhhyh123'}`, 'GitHub地址')} />
+          <SocialBtn type="gitee" onClick={() => copyToClipboard(`https://github.com/${siteConfig.social?.github || 'hyhhyh123'}`, 'GitHub地址')} />
+          <SocialBtn type="google" onClick={() => copyToClipboard(siteConfig.social?.google || '', 'Google账号')} />
           <SocialBtn type="email" onClick={() => copyToClipboard(siteConfig.social?.email || '', '邮箱')} />
           <SocialBtn type="qq" onClick={() => copyToClipboard(siteConfig.social?.qq || '', 'QQ号')} />
           <SocialBtn type="wechat" onClick={() => copyToClipboard(siteConfig.social?.wechat || '', '微信号')} />
