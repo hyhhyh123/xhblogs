@@ -46,12 +46,31 @@ export default function CloudPlayer() {
 
   if (playlist.length === 0 || !currentSong) {
     return (
-      <div className="h-full w-full rounded-3xl bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl p-6 flex flex-col items-center justify-center transition-all duration-700">
-        <div className="w-16 h-16 mb-4 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center shadow-inner opacity-50">
-          <svg className="w-8 h-8 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      <div
+        onClick={() => router.push('/music')}
+        className="h-full w-full rounded-3xl bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl p-4 flex items-center gap-5 transition-all duration-700 hover:scale-[1.02] cursor-pointer overflow-hidden relative group"
+      >
+        {/* 氛围背景：封面放大模糊 */}
+        <img
+          src="/music-cover.jpg"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover scale-125 blur-2xl opacity-40"
+        />
+        <div className="absolute inset-0 bg-white/30 dark:bg-slate-900/40 backdrop-blur-sm transition-colors duration-700"></div>
+
+        {/* 左侧：方形封面完整展示，不裁切 */}
+        <div className="relative z-10 h-full aspect-square flex-shrink-0 rounded-2xl overflow-hidden shadow-lg border border-white/50 dark:border-white/10">
+          <img src="/music-cover.jpg" alt="太聪明 - 陈绮贞" className="w-full h-full object-cover" />
         </div>
-        <span className="text-slate-500 dark:text-slate-400 font-bold tracking-widest text-xs uppercase">No Music Available</span>
-        <span className="text-[10px] text-slate-400 mt-1">请检查播放列表或网络连接</span>
+
+        {/* 右侧：歌曲信息 */}
+        <div className="relative z-10 flex flex-col justify-center overflow-hidden text-left min-w-0">
+          <span className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 tracking-widest uppercase bg-white/50 dark:bg-slate-900/50 px-2 py-0.5 rounded-sm shadow-sm w-fit mb-2 transition-colors duration-700">Now Playing</span>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white truncate drop-shadow-sm transition-colors duration-700">太聪明</h3>
+          <p className="text-sm text-slate-700 dark:text-slate-300 font-medium truncate drop-shadow-sm transition-colors duration-700">陈绮贞</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 transition-colors duration-700">《Groupies 吉他手》</p>
+        </div>
       </div>
     );
   }
