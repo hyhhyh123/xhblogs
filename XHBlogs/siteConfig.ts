@@ -30,6 +30,9 @@ export const siteConfig = {
   // 5. 首页照片墙预览图
   photoWallImage: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1000&auto=format&fit=crop",
   cloudMusicIds: [1330348068, 2025533834, 465921195, 1867217766, 1425814935, 32835565],
+
+  // 👇 全局右下角背景音乐按钮（/bg-music.mp3）。设为 false 隐藏，改 true 即可随时调出
+  showBackgroundMusicButton: false,
   social: {
     github: "hyhhyh123",
     gitee: "",
