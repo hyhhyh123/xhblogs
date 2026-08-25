@@ -25,13 +25,36 @@ export default function MusicClient() {
 
   const [parsedLyrics, setParsedLyrics] = useState<any[]>([]);
   const hasAutoStarted = useRef(false);
+  const hasEverPlayed = useRef(false);
 
-  // 🎵 进入音乐馆自动播放当前歌曲（仅触发一次）
   useEffect(() => {
-    if (!isLoading && currentSong && !isPlaying && !hasAutoStarted.current) {
-      hasAutoStarted.current = true;
+    if (isPlaying && !hasEverPlayed.current) hasEverPlayed.current = true;
+  }, [isPlaying]);
+
+  // 🎵 进入音乐馆自动播放当前歌曲（仅触发一次）；浏览器拦截时，用户首次交互后补播
+  useEffect(() => {
+    if (!isLoading || !currentSong || hasAutoStarted.current) return;
+    hasAutoStarted.current = true;
+    togglePlay();
+
+    const onInteract = () => {
+      if (hasEverPlayed.current) { cleanup(); return; }
       togglePlay();
-    }
+      cleanup();
+    };
+    const cleanup = () => {
+      document.removeEventListener("click", onInteract);
+      document.removeEventListener("touchstart", onInteract);
+      document.removeEventListener("keydown", onInteract);
+    };
+    // 稍后再绑定，避免与本次渲染的其它点击冲突
+    const t = setTimeout(() => {
+      document.addEventListener("click", onInteract);
+      document.addEventListener("touchstart", onInteract);
+      document.addEventListener("keydown", onInteract);
+    }, 400);
+
+    return () => { clearTimeout(t); cleanup(); };
   }, [isLoading, currentSong, isPlaying, togglePlay]);
 
   useEffect(() => {
