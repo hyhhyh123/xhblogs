@@ -1,0 +1,228 @@
+/* Giscus 毛玻璃主题 - 适配浅色/渐变背景博客
+ * 用于：https://xhblogs-hyh10.vercel.app/giscus-theme.css
+ */
+
+/* 主容器：半透明白色 + 毛玻璃 + 淡紫阴影 */
+.gsc-main {
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(18px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 10px 40px rgba(161, 140, 209, 0.15) !important;
+  padding: 20px !important;
+}
+
+/* 顶部 header：去掉多余边框 */
+.gsc-header {
+  border-bottom: 1px solid rgba(161, 140, 209, 0.15) !important;
+  padding-bottom: 12px !important;
+  margin-bottom: 16px !important;
+}
+
+.gsc-header a,
+.gsc-header .link-primary {
+  color: #6366f1 !important;
+}
+
+.gsc-header .text-secondary {
+  color: #94a3b8 !important;
+}
+
+/* 评论输入框 */
+.gsc-comment-box {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 18px !important;
+}
+
+.gsc-comment-box-textarea,
+.gsc-comment-box-preview {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(161, 140, 209, 0.25) !important;
+  color: #334155 !important;
+  font-size: 15px !important;
+}
+
+.gsc-comment-box-textarea:focus,
+.gsc-comment-box-textarea:focus-within {
+  border-color: #a18cd1 !important;
+  box-shadow: 0 0 0 3px rgba(161, 140, 209, 0.2) !important;
+  outline: none !important;
+}
+
+.gsc-comment-box-preview {
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Tab 切换 */
+.gsc-tab {
+  color: #64748b !important;
+  border-bottom: 2px solid transparent !important;
+  transition: color 0.2s !important;
+}
+
+.gsc-tab:hover {
+  color: #6366f1 !important;
+}
+
+.gsc-tab-active {
+  color: #6366f1 !important;
+  border-bottom-color: #6366f1 !important;
+  font-weight: 600 !important;
+}
+
+/* 按钮：紫色渐变，圆角 */
+.btn,
+.gsc-comment-box-main .btn-primary,
+.gsc-comment-box-actions .btn,
+.gsc-comment-reactions .btn {
+  border-radius: 12px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(161, 140, 209, 0.4) !important;
+  transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+.btn:hover,
+.gsc-comment-box-main .btn-primary:hover,
+.gsc-comment-box-actions .btn:hover,
+.gsc-comment-reactions .btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(161, 140, 209, 0.55) !important;
+}
+
+/* 工具栏按钮（Markdown 提示等） */
+.gsc-comment-box-toolbar button,
+.gsc-comment-box-toolbar .btn {
+  background: rgba(255, 255, 255, 0.4) !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+}
+
+.gsc-comment-box-toolbar button:hover,
+.gsc-comment-box-toolbar .btn:hover {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #6366f1 !important;
+}
+
+/* 单条评论卡片 */
+.gsc-comment {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 18px !important;
+  margin-bottom: 14px !important;
+  box-shadow: 0 4px 12px rgba(161, 140, 209, 0.08) !important;
+}
+
+.gsc-comment-header {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-bottom: 1px solid rgba(161, 140, 209, 0.12) !important;
+  border-radius: 18px 18px 0 0 !important;
+  padding: 12px 16px !important;
+}
+
+.gsc-comment-author {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+.gsc-comment-content {
+  color: #334155 !important;
+  padding: 14px 16px !important;
+  line-height: 1.7 !important;
+}
+
+.gsc-comment-content p {
+  color: #334155 !important;
+}
+
+.gsc-comment-content a {
+  color: #6366f1 !important;
+}
+
+/* 评论 footer */
+.gsc-comment-footer {
+  padding: 0 16px 12px !important;
+}
+
+/* 投票/反应按钮 */
+.gsc-upvote,
+.gsc-downvote,
+.gsc-social-reaction-summary {
+  color: #64748b !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-radius: 10px !important;
+  padding: 4px 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s !important;
+}
+
+.gsc-upvote:hover,
+.gsc-downvote:hover,
+.gsc-social-reaction-summary:hover {
+  color: #6366f1 !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+}
+
+.gsc-upvote.has-react,
+.gsc-downvote.has-react,
+.gsc-social-reaction-summary.has-reacted {
+  color: #6366f1 !important;
+  background: rgba(99, 102, 241, 0.12) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+/* 回复框 */
+.gsc-reply-box {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border: 1px solid rgba(161, 140, 209, 0.2) !important;
+  border-radius: 14px !important;
+  margin-top: 12px !important;
+}
+
+.gsc-reply-box-textarea {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(161, 140, 209, 0.2) !important;
+  color: #334155 !important;
+}
+
+/* 分页 */
+.gsc-pagination {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 12px !important;
+  color: #6366f1 !important;
+}
+
+.gsc-pagination:hover {
+  background: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* 加载/空状态 */
+.gsc-loading,
+.gsc-error {
+  color: #64748b !important;
+}
+
+/* 右下角反应弹窗 */
+.gsc-reactions-menu {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 下拉菜单 */
+.gsc-dropdown-menu {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+}
