@@ -5,7 +5,7 @@ export const siteConfig = {
   title: "猫小鱼 の 宝藏之地",
   faviconUrl: "/siamese-cat.png",
   authorName: "猫小鱼",
-  bio: "记录工作、生活与学习碎片的经济学小白。喜欢折腾各种有趣的小工具。",
+  bio: "温柔懒懒的海风，吹到高高的山峰",
 
   navTitle: "猫小鱼",
 
@@ -33,10 +33,10 @@ export const siteConfig = {
   social: {
     github: "hyhhyh123",
     gitee: "",
-    google: "",
-    email: "",
-    qq: "",
-    wechat: "",
+    google: "2714690577",
+    email: "2714690577@qq.com",
+    qq: "2714690577",
+    wechat: "YH00067",
   },
   counts: {
     photos: 0, // 照片墙数量可以手动写死或动态计算
@@ -63,6 +63,6 @@ export const siteConfig = {
     maxOutputTokens: 150,
     temperature: 0.85,
   },
-  friendLinkApplyFormat: "名称：猫小鱼の宝藏之地\n简介：记录工作、生活与学习碎片\n链接：\n头像：/siamese-cat.png",
+  friendLinkApplyFormat: "名称：猫小鱼の宝藏之地\n简介：温柔懒懒的海风，吹到高高的山峰\n链接：\n头像：/siamese-cat.png",
   enableLevelSystem: true,
 };
