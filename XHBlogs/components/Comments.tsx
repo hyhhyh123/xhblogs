@@ -26,7 +26,7 @@ export default function Comments() {
           data-reactions-enabled="1"
           data-emit-metadata="0"
           data-input-position="bottom"
-          data-theme="https://xhblogs-hyh10.vercel.app/giscus-theme.css?v=3"
+          data-theme="light_high_contrast"
           data-lang="zh-CN"
           data-loading="lazy"
           strategy="afterInteractive"
