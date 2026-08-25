@@ -1,219 +1,110 @@
-/* Giscus 高对比度毛玻璃主题 - 适配浅色/渐变背景 */
-/*  Hosted at: https://xhblogs-hyh10.vercel.app/giscus-theme.css  */
+/* Giscus 浅色高对比主题 - 基于官方 light 主题变量机制改写 */
+/* 适配浅色/渐变背景，文字深色、按钮紫色、背景半透明白（可读性优先） */
+main{
+  --color-prettylights-syntax-comment:#6e7781;
+  --color-prettylights-syntax-constant:#0550ae;
+  --color-prettylights-syntax-entity:#8250df;
+  --color-prettylights-syntax-storage-modifier-import:#24292f;
+  --color-prettylights-syntax-entity-tag:#116329;
+  --color-prettylights-syntax-keyword:#cf222e;
+  --color-prettylights-syntax-string:#0a3069;
+  --color-prettylights-syntax-variable:#953800;
+  --color-prettylights-syntax-brackethighlighter-unmatched:#82071e;
+  --color-prettylights-syntax-invalid-illegal-text:#f6f8fa;
+  --color-prettylights-syntax-invalid-illegal-bg:#82071e;
+  --color-prettylights-syntax-carriage-return-text:#f6f8fa;
+  --color-prettylights-syntax-carriage-return-bg:#cf222e;
+  --color-prettylights-syntax-string-regexp:#116329;
+  --color-prettylights-syntax-markup-list:#3b2300;
+  --color-prettylights-syntax-markup-heading:#0550ae;
+  --color-prettylights-syntax-markup-italic:#24292f;
+  --color-prettylights-syntax-markup-bold:#24292f;
+  --color-prettylights-syntax-markup-deleted-text:#82071e;
+  --color-prettylights-syntax-markup-deleted-bg:#ffebe9;
+  --color-prettylights-syntax-markup-inserted-text:#116329;
+  --color-prettylights-syntax-markup-inserted-bg:#dafbe1;
+  --color-prettylights-syntax-markup-changed-text:#953800;
+  --color-prettylights-syntax-markup-changed-bg:#ffd8b5;
+  --color-prettylights-syntax-markup-ignored-text:#eaeef2;
+  --color-prettylights-syntax-markup-ignored-bg:#0550ae;
+  --color-prettylights-syntax-meta-diff-range:#8250df;
+  --color-prettylights-syntax-brackethighlighter-angle:#57606a;
+  --color-prettylights-syntax-sublimelinter-gutter-mark:#8c959f;
+  --color-prettylights-syntax-constant-other-reference-link:#0a3069;
 
-/* 主容器：半透明白色但接近实色，保证内容可读 */
-.gsc-main {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-radius: 22px !important;
-  border: 1px solid rgba(99, 102, 241, 0.22) !important;
-  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.14) !important;
-  padding: 20px !important;
-}
+  /* 普通按钮：浅灰底 + 深字 + 紫色边 */
+  --color-btn-text:#1f2937;
+  --color-btn-bg:#f1f5f9;
+  --color-btn-border:rgba(99,102,241,0.28);
+  --color-btn-shadow:0 1px 0 #1f23280a;
+  --color-btn-inset-shadow:inset 0 1px 0 #ffffff40;
+  --color-btn-hover-bg:#e2e8f0;
+  --color-btn-hover-border:rgba(99,102,241,0.4);
+  --color-btn-active-bg:#e2e8f0;
+  --color-btn-active-border:rgba(99,102,241,0.4);
+  --color-btn-selected-bg:#e2e8f0;
 
-/* header 分隔线 */
-.gsc-header {
-  border-bottom: 1px solid rgba(99, 102, 241, 0.16) !important;
-  padding-bottom: 12px !important;
-  margin-bottom: 16px !important;
-}
+  /* 主按钮：紫底白字 */
+  --color-btn-primary-text:#ffffff;
+  --color-btn-primary-bg:#818cf8;
+  --color-btn-primary-border:rgba(99,102,241,0.3);
+  --color-btn-primary-shadow:0 1px 0 #1f23281a;
+  --color-btn-primary-inset-shadow:inset 0 1px 0 #ffffff08;
+  --color-btn-primary-hover-bg:#6366f1;
+  --color-btn-primary-hover-border:rgba(99,102,241,0.4);
+  --color-btn-primary-selected-bg:#6366f1;
+  --color-btn-primary-selected-shadow:inset 0 1px 0 #002d1133;
+  --color-btn-primary-disabled-text:#ffffffcc;
+  --color-btn-primary-disabled-bg:#c7d2fe;
+  --color-btn-primary-disabled-border:rgba(99,102,241,0.2);
 
-.gsc-header a,
-.gsc-header .link-primary {
-  color: #4f46e5 !important;
-  font-weight: 600 !important;
-}
+  --color-action-list-item-default-hover-bg:#6366f114;
+  --color-segmented-control-bg:#eef2ff;
+  --color-segmented-control-button-bg:#ffffff;
+  --color-segmented-control-button-selected-border:#818cf8;
 
-.gsc-header .text-secondary {
-  color: #64748b !important;
-}
+  /* 文字：深色系，保证可读 */
+  --color-fg-default:#1f2937;
+  --color-fg-muted:#64748b;
+  --color-fg-subtle:#94a3b8;
 
-/* 输入框区域：纯白背景 + 深字 + 紫色聚焦 */
-.gsc-comment-box {
-  background: #ffffff !important;
-  border: 1px solid rgba(99, 102, 241, 0.25) !important;
-  border-radius: 18px !important;
-}
+  /* 背景：半透明白（接近实色，保证内容清晰） */
+  --color-canvas-default:rgba(255,255,255,0.96);
+  --color-canvas-overlay:rgba(255,255,255,0.98);
+  --color-canvas-inset:#f8fafc;
+  --color-canvas-subtle:#f8fafc;
 
-.gsc-comment-box-textarea,
-.gsc-comment-box-preview {
-  background: #ffffff !important;
-  border-radius: 14px !important;
-  border: 1px solid rgba(99, 102, 241, 0.22) !important;
-  color: #1f2937 !important;
-  font-size: 15px !important;
-}
+  /* 边框：紫色系 */
+  --color-border-default:rgba(99,102,241,0.25);
+  --color-border-muted:rgba(99,102,241,0.15);
+  --color-neutral-muted:#6366f121;
 
-.gsc-comment-box-textarea:focus,
-.gsc-comment-box-textarea:focus-within {
-  border-color: #818cf8 !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18) !important;
-  outline: none !important;
-}
+  /* 强调/链接：紫色 */
+  --color-accent-fg:#4f46e5;
+  --color-accent-emphasis:#4f46e5;
+  --color-accent-muted:#818cf866;
+  --color-accent-subtle:#eef2ff;
 
-.gsc-comment-box-preview {
-  background: #f8fafc !important;
-}
+  --color-success-fg:#4f46e5;
+  --color-attention-fg:#9a6700;
+  --color-attention-muted:#d4a72c66;
+  --color-attention-subtle:#fff8c5;
+  --color-danger-fg:#d1242f;
+  --color-danger-muted:#ff818266;
+  --color-danger-subtle:#ffebe9;
+  --color-primer-shadow-inset:inset 0 1px 0 #d0d7de33;
 
-/* Tab */
-.gsc-tab {
-  color: #475569 !important;
-  border-bottom: 2px solid transparent !important;
-  transition: color 0.2s !important;
-  font-weight: 500 !important;
-}
+  --color-scale-gray-1:#eef2ff;
+  --color-scale-blue-1:#e0e7ff;
+  --color-social-reaction-bg-hover:var(--color-scale-gray-1);
+  --color-social-reaction-bg-reacted-hover:var(--color-scale-blue-1);
 
-.gsc-tab:hover {
-  color: #4f46e5 !important;
+  background:transparent;
+  color-scheme:light;
 }
+main .pagination-loader-container{background-image:url(https://github.com/images/modules/pulls/progressive-disclosure-line.svg)}
+main .gsc-loading-image{background-image:url(https://github.githubassets.com/images/mona-loading-default.gif)}
 
-.gsc-tab-active {
-  color: #4f46e5 !important;
-  border-bottom-color: #4f46e5 !important;
-  font-weight: 600 !important;
-}
-
-/* 按钮：紫色渐变 + 白字 */
-.btn,
-.gsc-comment-box-main .btn-primary,
-.gsc-comment-box-actions .btn,
-.gsc-comment-reactions .btn {
-  border-radius: 12px !important;
-  border: none !important;
-  background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%) !important;
-  color: #fff !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
-  transition: transform 0.2s, box-shadow 0.2s !important;
-}
-
-.btn:hover,
-.gsc-comment-box-main .btn-primary:hover,
-.gsc-comment-box-actions .btn:hover,
-.gsc-comment-reactions .btn:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.5) !important;
-}
-
-/* 工具栏按钮 */
-.gsc-comment-box-toolbar button,
-.gsc-comment-box-toolbar .btn {
-  background: rgba(99, 102, 241, 0.08) !important;
-  color: #475569 !important;
-  box-shadow: none !important;
-  border: 1px solid rgba(99, 102, 241, 0.12) !important;
-}
-
-.gsc-comment-box-toolbar button:hover,
-.gsc-comment-box-toolbar .btn:hover {
-  background: rgba(99, 102, 241, 0.16) !important;
-  color: #4f46e5 !important;
-}
-
-/* 单条评论：浅灰底 + 深字 */
-.gsc-comment {
-  background: #f8fafc !important;
-  border: 1px solid rgba(99, 102, 241, 0.12) !important;
-  border-radius: 18px !important;
-  margin-bottom: 14px !important;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.05) !important;
-}
-
-.gsc-comment-header {
-  background: rgba(99, 102, 241, 0.06) !important;
-  border-bottom: 1px solid rgba(99, 102, 241, 0.08) !important;
-  border-radius: 18px 18px 0 0 !important;
-  padding: 12px 16px !important;
-}
-
-.gsc-comment-author {
-  color: #1f2937 !important;
-  font-weight: 600 !important;
-}
-
-.gsc-comment-content {
-  color: #334155 !important;
-  padding: 14px 16px !important;
-  line-height: 1.7 !important;
-}
-
-.gsc-comment-content p {
-  color: #334155 !important;
-}
-
-.gsc-comment-content a {
-  color: #4f46e5 !important;
-}
-
-/* 评论 footer */
-.gsc-comment-footer {
-  padding: 0 16px 12px !important;
-}
-
-/* 点赞/踩/表情：浅底深色 */
-.gsc-upvote,
-.gsc-downvote,
-.gsc-social-reaction-summary {
-  color: #475569 !important;
-  background: rgba(99, 102, 241, 0.08) !important;
-  border-radius: 10px !important;
-  padding: 4px 10px !important;
-  border: 1px solid rgba(99, 102, 241, 0.12) !important;
-  transition: all 0.2s !important;
-}
-
-.gsc-upvote:hover,
-.gsc-downvote:hover,
-.gsc-social-reaction-summary:hover {
-  color: #4f46e5 !important;
-  background: rgba(99, 102, 241, 0.14) !important;
-}
-
-.gsc-upvote.has-react,
-.gsc-downvote.has-react,
-.gsc-social-reaction-summary.has-reacted {
-  color: #4f46e5 !important;
-  background: rgba(99, 102, 241, 0.14) !important;
-  border-color: rgba(99, 102, 241, 0.3) !important;
-}
-
-/* 回复框 */
-.gsc-reply-box {
-  background: #ffffff !important;
-  border: 1px solid rgba(99, 102, 241, 0.18) !important;
-  border-radius: 14px !important;
-  margin-top: 12px !important;
-}
-
-.gsc-reply-box-textarea {
-  background: #ffffff !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(99, 102, 241, 0.15) !important;
-  color: #1f2937 !important;
-}
-
-/* 分页 */
-.gsc-pagination {
-  background: rgba(99, 102, 241, 0.08) !important;
-  border: 1px solid rgba(99, 102, 241, 0.14) !important;
-  border-radius: 12px !important;
-  color: #4f46e5 !important;
-}
-
-.gsc-pagination:hover {
-  background: rgba(99, 102, 241, 0.14) !important;
-}
-
-/* 加载/错误 */
-.gsc-loading,
-.gsc-error {
-  color: #64748b !important;
-}
-
-/* 表情下拉菜单 */
-.gsc-reactions-menu,
-.gsc-dropdown-menu {
-  background: #ffffff !important;
-  border: 1px solid rgba(99, 102, 241, 0.2) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
-}
+/* 让评论卡片有轻微圆角和分隔（不影响变量机制，仅装饰） */
+main .gsc-comment{border-radius:14px}
+main .gsc-comment-box{border-radius:14px}
