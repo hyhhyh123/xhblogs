@@ -24,6 +24,15 @@ export default function MusicClient() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [parsedLyrics, setParsedLyrics] = useState<any[]>([]);
+  const hasAutoStarted = useRef(false);
+
+  // 🎵 进入音乐馆自动播放当前歌曲（仅触发一次）
+  useEffect(() => {
+    if (!isLoading && currentSong && !isPlaying && !hasAutoStarted.current) {
+      hasAutoStarted.current = true;
+      togglePlay();
+    }
+  }, [isLoading, currentSong, isPlaying, togglePlay]);
 
   useEffect(() => {
     if (!currentSong) {
