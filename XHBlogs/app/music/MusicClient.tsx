@@ -11,7 +11,7 @@ import Comments from '../../components/Comments';
 export default function MusicClient() {
   const {
     playlist, currentSong, isPlaying, progress, currentTime, duration, currentLyric,
-    isLoading, togglePlay, startAutoplay, nextSong, prevSong, handleSeek,
+    isLoading, togglePlay, nextSong, prevSong, handleSeek,
     playSong, selectSong,
     playMode, togglePlayMode,
     volume, setVolume, isMuted, toggleMute
@@ -24,17 +24,6 @@ export default function MusicClient() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [parsedLyrics, setParsedLyrics] = useState<any[]>([]);
-  const hasAutoStarted = useRef(false);
-
-  // 🎵 进入音乐馆自动播放（仅触发一次）：
-  //    1) 先尝试带声音自动播放（常访客 / 浏览器 MEI 放行即直接出声）；
-  //    2) 若被自动播放策略拦截，Provider 会转为静音自动播放，
-  //       并在首次交互（移动/点击/滚动）时自动解锁声音。
-  useEffect(() => {
-    if (!isLoading || !currentSong || hasAutoStarted.current) return;
-    hasAutoStarted.current = true;
-    startAutoplay();
-  }, [isLoading, currentSong, startAutoplay]);
 
   useEffect(() => {
     if (!currentSong) {
@@ -164,12 +153,6 @@ export default function MusicClient() {
       {!isPlaying && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
           点击页面任意位置即可播放 ♪
-        </div>
-      )}
-
-      {isPlaying && isMuted && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
-          🔊 点击 / 移动任意位置开启声音 ♪
         </div>
       )}
 
