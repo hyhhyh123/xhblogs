@@ -1,6 +1,9 @@
 // siteConfig.ts - 你的全站“控制中心”
 
 export const siteConfig = {
+  // 0. 站点正式域名（用于 sitemap / RSS / robots，结尾不要带 /）
+  siteUrl: "https://xhblogs-rouge.vercel.app",
+
   // 1. 网站标题与博主信息
   title: "猫小鱼 の 宝藏之地",
   faviconUrl: "/siamese-cat.png",
