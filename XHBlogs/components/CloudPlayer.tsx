@@ -109,7 +109,13 @@ export default function CloudPlayer() {
               willChange: 'transform'
             }}
           >
-            <img src={currentSong.cover} alt="cover" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            {/* 🌟 网易云封面原图可达 7MB, 加 ?param=500y500 走 CDN 缩略图(几十 KB), 大幅降低首屏传输 */}
+            <img
+              src={currentSong.cover.includes('music.126.net') && !currentSong.cover.includes('?') ? `${currentSong.cover}?param=500y500` : currentSong.cover}
+              alt="cover"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
             <div className="absolute inset-0 bg-black/10"></div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-white/80 backdrop-blur-sm rounded-full border border-gray-300 shadow-inner"></div>
           </div>

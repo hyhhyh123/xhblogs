@@ -13,19 +13,17 @@ export default function DeferredEffects() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    let id: number | undefined;
-    if ('requestIdleCallback' in window) {
-      id = window.requestIdleCallback(() => setReady(true), { timeout: 3000 });
-    } else {
-      id = window.setTimeout(() => setReady(true), 1500);
-    }
-    return () => {
-      if ('requestIdleCallback' in window) {
-        window.cancelIdleCallback(id as number);
-      } else {
-        clearTimeout(id as number);
-      }
+    let cancelled = false;
+    const w = window as unknown as {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
     };
+    if (typeof w.requestIdleCallback === 'function') {
+      w.requestIdleCallback(() => { if (!cancelled) setReady(true); }, { timeout: 3000 });
+    } else {
+      setTimeout(() => { if (!cancelled) setReady(true); }, 1500);
+    }
+    return () => { cancelled = true; };
   }, []);
 
   if (!ready) return null;
