@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 
 import Navbar from '../../components/Navbar';
 import PageTransition from '../../components/PageTransition';
@@ -16,6 +16,27 @@ import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import 'highlight.js/styles/atom-one-dark.css';
 import 'katex/dist/katex.min.css';
+
+// Markdown 工具栏图标
+import {
+  Bold,
+  Italic,
+  Strikethrough,
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  ListTodo,
+  Quote,
+  Link2,
+  Image,
+  Code,
+  CodeXml,
+  Sigma,
+  Table,
+  Minus,
+} from 'lucide-react';
 
 interface PostItem {
   slug: string;
@@ -82,6 +103,7 @@ export default function WritePage() {
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<StatusMsg | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const flash = (type: StatusMsg['type'], text: string) => {
     setMsg({ type, text });
@@ -233,6 +255,82 @@ export default function WritePage() {
 
   const inputCls =
     'w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder-slate-400 font-medium';
+
+  // ---------- Markdown 工具栏 ----------
+  function insertMd(
+    kind: 'inline' | 'blockPrefix' | 'blockWrap' | 'raw',
+    before: string,
+    after = '',
+    placeholder = ''
+  ) {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart ?? content.length;
+    const end = ta.selectionEnd ?? content.length;
+    const selected = content.slice(start, end);
+
+    if (kind === 'blockPrefix' && !selected) {
+      // 无选中：在当前行行首插入前缀
+      const lineStart = content.lastIndexOf('\n', start - 1) + 1;
+      const next = content.slice(0, lineStart) + before + content.slice(lineStart);
+      setContent(next);
+      requestAnimationFrame(() => {
+        ta.focus();
+        const pos = lineStart + before.length;
+        ta.setSelectionRange(pos, pos);
+      });
+      return;
+    }
+
+    let insert = '';
+    let cursorPos = start;
+
+    if (kind === 'inline') {
+      const sel = selected || placeholder;
+      insert = `${before}${sel}${after}`;
+      cursorPos = start + before.length + sel.length;
+    } else if (kind === 'blockPrefix') {
+      insert = selected
+        .split('\n')
+        .map((l) => before + l)
+        .join('\n');
+      cursorPos = start + insert.length;
+    } else if (kind === 'blockWrap') {
+      insert = `${before}\n${selected || placeholder}\n${after}`;
+      cursorPos = start + before.length + 1 + (selected || placeholder).length;
+    } else {
+      insert = before;
+      cursorPos = start + insert.length;
+    }
+
+    const next = content.slice(0, start) + insert + content.slice(end);
+    setContent(next);
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(cursorPos, cursorPos);
+    });
+  }
+
+  const mdTools: { title: string; icon: ReactNode; onClick: () => void }[] = [
+    { title: '一级标题', icon: <Heading1 size={15} />, onClick: () => insertMd('blockPrefix', '# ') },
+    { title: '二级标题', icon: <Heading2 size={15} />, onClick: () => insertMd('blockPrefix', '## ') },
+    { title: '三级标题', icon: <Heading3 size={15} />, onClick: () => insertMd('blockPrefix', '### ') },
+    { title: '加粗', icon: <Bold size={15} />, onClick: () => insertMd('inline', '**', '**', '加粗文字') },
+    { title: '斜体', icon: <Italic size={15} />, onClick: () => insertMd('inline', '*', '*', '斜体文字') },
+    { title: '删除线', icon: <Strikethrough size={15} />, onClick: () => insertMd('inline', '~~', '~~', '删除线') },
+    { title: '无序列表', icon: <List size={15} />, onClick: () => insertMd('blockPrefix', '- ') },
+    { title: '有序列表', icon: <ListOrdered size={15} />, onClick: () => insertMd('blockPrefix', '1. ') },
+    { title: '任务列表', icon: <ListTodo size={15} />, onClick: () => insertMd('blockPrefix', '- [ ] ') },
+    { title: '引用', icon: <Quote size={15} />, onClick: () => insertMd('blockPrefix', '> ') },
+    { title: '行内代码', icon: <Code size={15} />, onClick: () => insertMd('inline', '`', '`', 'code') },
+    { title: '代码块', icon: <CodeXml size={15} />, onClick: () => insertMd('blockWrap', '```js', '```', '// 在这里写代码') },
+    { title: '链接', icon: <Link2 size={15} />, onClick: () => insertMd('inline', '[', '](https://)', '链接文字') },
+    { title: '图片', icon: <Image size={15} />, onClick: () => insertMd('inline', '![', '](https://图片地址.png)', '图片说明') },
+    { title: '行内公式', icon: <Sigma size={15} />, onClick: () => insertMd('inline', '$', '$', '公式') },
+    { title: '公式块', icon: <Sigma size={15} />, onClick: () => insertMd('blockWrap', '$$', '$$', 'E = mc^2') },
+    { title: '表格', icon: <Table size={15} />, onClick: () => insertMd('blockWrap', '| 列1 | 列2 |\n| --- | --- |', '', '| 内容 | 内容 |') },
+    { title: '分割线', icon: <Minus size={15} />, onClick: () => insertMd('raw', '\n---\n') },
+  ];
 
   // ==================== 未解锁 ====================
   if (!unlocked) {
@@ -396,13 +494,33 @@ export default function WritePage() {
                 </div>
 
                 {tab === 'edit' ? (
-                  <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder={'# 开始写作...\n\n支持 **加粗**、`代码`、```代码块```、$公式$、表格、任务列表等'}
-                    className={`${inputCls} h-[420px] md:h-[480px] resize-y leading-relaxed font-mono text-[13px]`}
-                    spellCheck={false}
-                  />
+                  <>
+                    {/* Markdown 工具栏 */}
+                    <div className="flex flex-wrap items-center gap-0.5 mb-3 px-2 py-1.5 rounded-xl bg-white/40 dark:bg-slate-900/40 border border-white/40 dark:border-white/10">
+                      {mdTools.map((t) => (
+                        <button
+                          key={t.title}
+                          type="button"
+                          title={t.title}
+                          onClick={t.onClick}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-indigo-500/10 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+                        >
+                          {t.icon}
+                        </button>
+                      ))}
+                      <span className="ml-auto text-[10px] text-slate-400 dark:text-slate-500 hidden md:block pr-1">
+                        选中文字后点按钮即可包裹语法
+                      </span>
+                    </div>
+                    <textarea
+                      ref={textareaRef}
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder={'# 开始写作...\n\n支持 **加粗**、`代码`、```代码块```、$公式$、表格、任务列表等'}
+                      className={`${inputCls} h-[420px] md:h-[480px] resize-y leading-relaxed font-mono text-[13px]`}
+                      spellCheck={false}
+                    />
+                  </>
                 ) : (
                   <div
                     className="prose prose-slate dark:prose-invert max-w-none h-[420px] md:h-[480px] overflow-y-auto bg-white/40 dark:bg-slate-900/40 rounded-xl border border-white/40 dark:border-white/10 p-5 text-slate-800 dark:text-slate-200"
