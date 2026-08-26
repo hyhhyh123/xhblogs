@@ -57,7 +57,9 @@ interface MusicContextType {
   playSong: (index: number) => void;
   setVolume: (value: number) => void;
   toggleMute: () => void;
+  setMuted: (value: boolean) => void;
   togglePlayMode: () => void;
+  startAutoplay: () => void;
 }
 
 const MusicContext = createContext<MusicContextType | null>(null);
@@ -79,6 +81,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [playMode, setPlayMode] = useState<PlayMode>('loop');
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  // 记录用户是否手动暂停过，避免解锁声音时把「用户主动暂停」误恢复
+  const userPausedRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -162,9 +166,11 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) {
+      userPausedRef.current = true;
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      userPausedRef.current = false;
       // 仅在音频真正开始播放后才更新状态，避免「假播放」
       audioRef.current.play()
         .then(() => setIsPlaying(true))
@@ -235,6 +241,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleMute = () => setIsMuted(!isMuted);
+  const setMuted = (val: boolean) => setIsMuted(val);
 
   const togglePlayMode = () => {
     setPlayMode(prev => {
@@ -244,6 +251,38 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  // 🌟 进入音乐馆自动播放：先尝试带声音自动播放（常访客 / MEI 放行即直接出声）；
+  //    若被浏览器自动播放策略拦截，则静音自动播放，并在用户首次交互（移动/点击/滚动）时解锁声音。
+  const startAutoplay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.muted = false;
+    audio.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => {
+        // 带声音自动播放被拦截 -> 静音自动播放，再在首次交互时解锁声音
+        audio.muted = true;
+        setIsMuted(true);
+        audio.play()
+          .then(() => setIsPlaying(true))
+          .catch(() => setIsPlaying(false));
+        const unlock = () => {
+          audio.muted = false;
+          setIsMuted(false);
+          // 若静音播放也被拦截导致未在播，且用户并未手动暂停，则补播
+          if (audio.paused && !userPausedRef.current) {
+            audio.play().then(() => setIsPlaying(true)).catch(() => {});
+          }
+          ['click', 'touchstart', 'keydown', 'pointerdown', 'wheel', 'mousemove'].forEach(ev =>
+            document.removeEventListener(ev, unlock)
+          );
+        };
+        ['click', 'touchstart', 'keydown', 'pointerdown', 'wheel', 'mousemove'].forEach(ev =>
+          document.addEventListener(ev, unlock)
+        );
+      });
+  };
+
   const currentSong = playlist[currentIndex];
 
   return (
@@ -251,7 +290,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         playlist, currentIndex, currentSong, isPlaying, progress, currentTime, duration, currentLyric, isLoading,
         volume, isMuted, playMode, // 暴露新状态
         togglePlay, nextSong, prevSong, handleSeek,
-        playSong, setVolume, toggleMute, togglePlayMode // 暴露新方法
+        playSong, setVolume, toggleMute, setMuted, togglePlayMode, startAutoplay // 暴露新方法
     }}>
       {children}
       {currentSong && (
