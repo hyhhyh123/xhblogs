@@ -11,7 +11,7 @@ import Comments from '../../components/Comments';
 export default function MusicClient() {
   const {
     playlist, currentSong, isPlaying, progress, currentTime, duration, currentLyric,
-    isLoading, togglePlay, nextSong, prevSong, handleSeek,
+    isLoading, togglePlay, startAutoplay, nextSong, prevSong, handleSeek,
     playSong, selectSong,
     playMode, togglePlayMode,
     volume, setVolume, isMuted, toggleMute
@@ -26,36 +26,15 @@ export default function MusicClient() {
   const [parsedLyrics, setParsedLyrics] = useState<any[]>([]);
   const hasAutoStarted = useRef(false);
 
-  // 把 isPlaying 同步到 ref，供交互回调实时读取，避免「假播放」误判
-  const isPlayingRef = useRef(false);
-  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
-
-  // 🎵 进入音乐馆自动播放当前歌曲（仅触发一次）；若被浏览器自动播放策略拦截，
-  //    则在用户首次交互（点击 / 触摸 / 按键）后补播。
+  // 🎵 进入音乐馆自动播放（仅触发一次）：
+  //    1) 先尝试带声音自动播放（常访客 / 浏览器 MEI 放行即直接出声）；
+  //    2) 若被自动播放策略拦截，Provider 会转为静音自动播放，
+  //       并在首次交互（移动/点击/滚动）时自动解锁声音。
   useEffect(() => {
     if (!isLoading || !currentSong || hasAutoStarted.current) return;
     hasAutoStarted.current = true;
-
-    const tryStart = () => { if (!isPlayingRef.current) togglePlay(); };
-    const cleanup = () => {
-      document.removeEventListener("click", onInteract);
-      document.removeEventListener("touchstart", onInteract);
-      document.removeEventListener("keydown", onInteract);
-    };
-    const onInteract = () => { cleanup(); tryStart(); };
-
-    // 先尝试直接自动播放（常访问站点浏览器可能放行）
-    togglePlay();
-
-    // 被拦截时：稍后绑定首次交互补播
-    const t = setTimeout(() => {
-      document.addEventListener("click", onInteract);
-      document.addEventListener("touchstart", onInteract);
-      document.addEventListener("keydown", onInteract);
-    }, 600);
-
-    return () => { clearTimeout(t); cleanup(); };
-  }, [isLoading, currentSong, togglePlay]);
+    startAutoplay();
+  }, [isLoading, currentSong, startAutoplay]);
 
   useEffect(() => {
     if (!currentSong) {
@@ -185,6 +164,12 @@ export default function MusicClient() {
       {!isPlaying && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
           点击页面任意位置即可播放 ♪
+        </div>
+      )}
+
+      {isPlaying && isMuted && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
+          🔊 点击 / 移动任意位置开启声音 ♪
         </div>
       )}
 
