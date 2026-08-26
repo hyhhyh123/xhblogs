@@ -1,6 +1,5 @@
 import 'katex/dist/katex.min.css';
 import type { Metadata } from "next";
-import dynamic from 'next/dynamic';
 import { Geist, Geist_Mono, Noto_Serif_SC } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
@@ -12,11 +11,7 @@ import BackgroundSlider from "../components/BackgroundSlider";
 import GlobalToolbox from "../components/GlobalToolbox";
 import SplashScreen from "../components/SplashScreen";
 import MobileBackButton from '../components/MobileBackButton';
-
-// 🌟 纯装饰动效改为动态加载(ssr:false), 不进首屏 HTML/初始 JS, 减少首屏阻塞
-const ClickEffect = dynamic(() => import('../components/ClickEffect'), { ssr: false });
-const CyberCat = dynamic(() => import('../components/CyberCat'), { ssr: false });
-const DanmakuBackground = dynamic(() => import('../components/DanmakuBackground'), { ssr: false });
+import DeferredEffects from '../components/DeferredEffects';
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -94,11 +89,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </div>
               </div>
 
-              {/* 隐藏手机端弹幕 */}
-              <div className="hidden md:block">
-                <DanmakuBackground />
-              </div>
-
               <div className="relative z-10 flex-1 flex flex-col">
                 {children}
               </div>
@@ -113,12 +103,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <div className="md:hidden block">
                 <MobileBackButton />
               </div>
-
-              {/* 隐藏手机端点击粒子 */}
-              <div className="hidden md:block">
-                <ClickEffect />
-              </div>
             </div>
+
+            {/* 纯装饰动效（弹幕/点击特效/赛博猫）延迟到空闲时挂载, 不阻塞首屏 */}
+            <DeferredEffects />
 
             <style suppressHydrationWarning dangerouslySetInnerHTML={{ __html: `
               @keyframes gradientMove { 
@@ -128,10 +116,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               }
             `}} />
           </MusicProvider>
-
-          <div className="hidden md:block">
-            <CyberCat />
-          </div>
 
         </ThemeProvider>
       </body>
