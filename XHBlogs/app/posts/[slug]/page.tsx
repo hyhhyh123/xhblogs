@@ -51,6 +51,33 @@ function extractToc(content: string) {
   return toc;
 }
 
+// 🌟 统计正文字数（中文字符 + 英文单词），用于展示「全文约 N 字 · 预计阅读 X 分钟」
+function countWords(md: string) {
+  const cleaned = md
+    .replace(/```[\s\S]*?```/g, ' ')          // 去掉代码块
+    .replace(/`[^`]*`/g, ' ')                 // 去掉行内代码
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')    // 去掉图片语法
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')  // 链接只留文字
+    .replace(/^#{1,6}\s+/gm, '')              // 去掉标题符号
+    .replace(/^>\s?/gm, '')                   // 去掉引用符号
+    .replace(/^[-*+]\s+/gm, '')               // 去掉无序列表符号
+    .replace(/^\d+\.\s+/gm, '')               // 去掉有序列表符号
+    .replace(/<br\s*\/?>/gi, ' ')             // <br/> 当空格
+    .replace(/[*_~|]/g, ' ')                  // 去掉加粗/斜体等符号
+    .replace(/\s+/g, ' ');
+  const cjk = (cleaned.match(/[\u4e00-\u9fa5]/g) || []).length;          // 汉字
+  const cjkPunct = (cleaned.match(/[\u3000-\u303f\uff00-\uffef]/g) || []).length; // 中文标点
+  const words = (cleaned
+    .replace(/[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]/g, ' ')
+    .match(/[a-zA-Z0-9]+(?:['-][a-zA-Z0-9]+)*/g) || []).length;          // 英文单词/数字
+  return { total: cjk + cjkPunct + words, cjk, words };
+}
+
+// 阅读速度参考：中文约 350 字/分钟，英文约 180 词/分钟，至少 1 分钟
+function estimateReadingMinutes(count: { cjk: number; words: number }) {
+  return Math.max(1, Math.ceil(count.cjk / 350 + count.words / 180));
+}
+
 async function getPostData(slug: string) {
   const fullPath = path.join(process.cwd(), 'posts', `${slug}.md`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
@@ -100,6 +127,9 @@ async function getPostData(slug: string) {
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(content);
 
+  const wordCount = countWords(content);
+  const readingMinutes = estimateReadingMinutes(wordCount);
+
   return {
     slug,
     contentHtml: processedContent.toString(),
@@ -107,7 +137,9 @@ async function getPostData(slug: string) {
     title: data.title,
     date: data.date,
     tags: data.tags && Array.isArray(data.tags) ? data.tags : [],
-    cover: data.cover || siteConfig.defaultPostCover
+    cover: data.cover || siteConfig.defaultPostCover,
+    wordCount: wordCount.total,
+    readingMinutes
   };
 }
 
@@ -322,6 +354,18 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
                   )}
                 </div>
               )}
+
+              {/* 🌟 阅读信息：字数 + 预计阅读时长 */}
+              <div className="mt-10 md:mt-12 flex items-center justify-center gap-2 md:gap-3">
+                <span className="flex items-center gap-1.5 md:gap-2 px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-white/30 dark:bg-slate-900/50 border border-white/20 dark:border-white/5 text-xs md:text-sm text-slate-600 dark:text-slate-300 font-bold shadow-sm transition-colors duration-700">
+                  <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  全文约 {postData.wordCount} 字
+                </span>
+                <span className="flex items-center gap-1.5 md:gap-2 px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-white/30 dark:bg-slate-900/50 border border-white/20 dark:border-white/5 text-xs md:text-sm text-indigo-600 dark:text-indigo-400 font-bold shadow-sm transition-colors duration-700">
+                  <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  预计阅读 {postData.readingMinutes} 分钟
+                </span>
+              </div>
 
               <div className="mt-12 md:mt-16">
                 <Comments />
