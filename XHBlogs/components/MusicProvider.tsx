@@ -83,6 +83,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   // 记录用户是否手动暂停过，避免解锁声音时把「用户主动暂停」误恢复
   const userPausedRef = useRef(false);
+  const currentSong = playlist[currentIndex];
 
   useEffect(() => {
     let isMounted = true;
@@ -175,6 +176,27 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
   }, [volume, isMuted]);
 
+  // 🌟 全局交互兜底：当音乐没在播、或仍处于静音自动播放状态时，
+  //    监听页面的首次点击/移动/滚动等交互，自动恢复播放并解锁声音，
+  //    兑现「点击页面任意位置即可播放」的提示。一次性触发后移除监听。
+  useEffect(() => {
+    if (!currentSong) return;
+    if (isPlaying && !isMuted) return;
+    const events = ['click', 'mousemove', 'touchstart', 'keydown', 'pointerdown', 'wheel'];
+    const onInteract = () => {
+      if (!audioRef.current) return;
+      audioRef.current.muted = false;
+      setIsMuted(false);
+      userPausedRef.current = false;
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
+      events.forEach(ev => document.removeEventListener(ev, onInteract));
+    };
+    events.forEach(ev => document.addEventListener(ev, onInteract));
+    return () => events.forEach(ev => document.removeEventListener(ev, onInteract));
+  }, [isPlaying, isMuted, currentSong]);
+
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) {
@@ -263,8 +285,9 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  // 🌟 进入音乐馆自动播放：先尝试带声音自动播放（常访客 / MEI 放行即直接出声）；
-  //    若被浏览器自动播放策略拦截，则静音自动播放，并在用户首次交互（移动/点击/滚动）时解锁声音。
+  // 🌟 进入网站自动播放：先尝试带声音自动播放（常访客 / MEI 放行即直接出声）；
+  //    若被浏览器自动播放策略拦截，则静音自动播放；
+  //    首次交互后自动解锁 / 恢复播放由上面的「全局交互兜底」effect 统一处理。
   const startAutoplay = () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -272,30 +295,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     audio.play()
       .then(() => setIsPlaying(true))
       .catch(() => {
-        // 带声音自动播放被拦截 -> 静音自动播放，再在首次交互时解锁声音
+        // 带声音自动播放被拦截 -> 静音自动播放
         audio.muted = true;
         setIsMuted(true);
         audio.play()
           .then(() => setIsPlaying(true))
           .catch(() => setIsPlaying(false));
-        const unlock = () => {
-          audio.muted = false;
-          setIsMuted(false);
-          // 若静音播放也被拦截导致未在播，且用户并未手动暂停，则补播
-          if (audio.paused && !userPausedRef.current) {
-            audio.play().then(() => setIsPlaying(true)).catch(() => {});
-          }
-          ['click', 'touchstart', 'keydown', 'pointerdown', 'wheel', 'mousemove'].forEach(ev =>
-            document.removeEventListener(ev, unlock)
-          );
-        };
-        ['click', 'touchstart', 'keydown', 'pointerdown', 'wheel', 'mousemove'].forEach(ev =>
-          document.addEventListener(ev, unlock)
-        );
       });
   };
-
-  const currentSong = playlist[currentIndex];
 
   return (
     <MusicContext.Provider value={{
