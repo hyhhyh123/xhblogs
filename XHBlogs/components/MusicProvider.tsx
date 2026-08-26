@@ -119,6 +119,18 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     return () => { isMounted = false; };
   }, []);
 
+  // 🌟 全站自动播放：进入网站（首页 / 任意页面）即自动开始播放第一首歌。
+  //    歌单首次加载完成后触发一次；若被浏览器自动播放策略拦截，
+  //    则静音自动播放，并在首次交互（移动/点击/滚动）时解锁声音。
+  const hasGlobalAutoplayStarted = useRef(false);
+  useEffect(() => {
+    if (hasGlobalAutoplayStarted.current) return;
+    if (playlist.length === 0) return;
+    hasGlobalAutoplayStarted.current = true;
+    startAutoplay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playlist.length]);
+
   useEffect(() => {
     if (playlist.length === 0) return;
     let isMounted = true;
@@ -293,6 +305,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         playSong, setVolume, toggleMute, setMuted, togglePlayMode, startAutoplay // 暴露新方法
     }}>
       {children}
+
+      {/* 🔊 全站：静音自动播放中的解锁提示（首次交互后自动消失） */}
+      {isPlaying && isMuted && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
+          🔊 点击 / 移动任意位置开启声音 ♪
+        </div>
+      )}
+
       {currentSong && (
         <audio
           ref={audioRef}
