@@ -81,6 +81,9 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [playMode, setPlayMode] = useState<PlayMode>('loop');
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  // 实时播放意图（同步于渲染状态，供事件处理器/effect 读取，避免 stale closure）
+  const isPlayingRef = useRef(false);
+  const setPlayingState = (v: boolean) => { isPlayingRef.current = v; setIsPlaying(v); };
   // 记录用户是否手动暂停过，避免解锁声音时把「用户主动暂停」误恢复
   const userPausedRef = useRef(false);
   const currentSong = playlist[currentIndex];
@@ -160,10 +163,10 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         .catch(() => { if (isMounted) setCurrentLyric("\u266a \u7eaf\u4eab\u97f3\u4e50 \u266a"); });
     }
 
-    if (isPlaying && audioRef.current) {
+    if (isPlayingRef.current && audioRef.current) {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => setIsPlaying(false));
+        playPromise.catch(() => setPlayingState(false));
       }
     }
     return () => { isMounted = false; };
@@ -183,7 +186,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   //        日常操作冲突，误触发恢复播放；且 mousemove 不属于有效的 user activation。
   useEffect(() => {
     if (!currentSong) return;
-    if (isPlaying && !isMuted) return;
+    if (isPlayingRef.current && !isMuted) return;
     const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'wheel'];
     const onInteract = () => {
       if (!audioRef.current) return;
@@ -191,7 +194,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       setIsMuted(false);
       userPausedRef.current = false;
       audioRef.current.play()
-        .then(() => setIsPlaying(true))
+        .then(() => setPlayingState(true))
         .catch(() => {});
       events.forEach(ev => document.removeEventListener(ev, onInteract));
     };
@@ -199,18 +202,22 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     return () => events.forEach(ev => document.removeEventListener(ev, onInteract));
   }, [isPlaying, isMuted, currentSong]);
 
+  // 🌟 播放/暂停：直接读 audio 元素的实时状态（audio.paused）判断，
+  //    不依赖 React 的 isPlaying 闭包值，避免快速点击时因渲染滞后走错分支（不灵敏）。
   const togglePlay = () => {
     if (!audioRef.current) return;
-    if (isPlaying) {
+    if (!audioRef.current.paused) {
+      // 正在播 -> 暂停
       userPausedRef.current = true;
       audioRef.current.pause();
-      setIsPlaying(false);
+      setPlayingState(false);
     } else {
+      // 已暂停 -> 播放（乐观更新：立即反馈，音频缓冲时不会显得「点了没反应」）
       userPausedRef.current = false;
-      // 仅在音频真正开始播放后才更新状态，避免「假播放」
+      setPlayingState(true);
       audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false));
+        .then(() => setPlayingState(true))
+        .catch(() => setPlayingState(false));
     }
   };
 
@@ -234,7 +241,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   // 🌟 6. 暴露直接播放指定歌曲的方法
   const playSong = (index: number) => {
     setCurrentIndex(index);
-    if (!isPlaying) setIsPlaying(true); // 保证切歌后自动播放
+    userPausedRef.current = false;
+    // 乐观更新播放意图：点歌即视为播放（切歌后由歌词 effect 续播新歌）
+    setPlayingState(true);
+    if (audioRef.current) {
+      audioRef.current.play()
+        .then(() => setPlayingState(true))
+        .catch(() => setPlayingState(false));
+    }
   };
 
   const handleTimeUpdate = () => {
@@ -295,14 +309,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     if (!audio) return;
     audio.muted = false;
     audio.play()
-      .then(() => setIsPlaying(true))
+      .then(() => setPlayingState(true))
       .catch(() => {
         // 带声音自动播放被拦截 -> 静音自动播放
         audio.muted = true;
         setIsMuted(true);
         audio.play()
-          .then(() => setIsPlaying(true))
-          .catch(() => setIsPlaying(false));
+          .then(() => setPlayingState(true))
+          .catch(() => setPlayingState(false));
       });
   };
 
@@ -330,7 +344,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
           onEnded={handleEnded} // 使用我们重写的结束处理
           onLoadedMetadata={handleTimeUpdate}
           onError={() => {
-            setIsPlaying(false);
+            setPlayingState(false);
             setCurrentLyric('♪ 当前曲目暂无法播放（可能是 VIP / 版权受限）♪');
           }}
         />
