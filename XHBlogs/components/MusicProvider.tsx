@@ -179,30 +179,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
   }, [volume, isMuted]);
 
-  // 🌟 全局交互兜底：当音乐没在播、或仍处于静音自动播放状态时，
-  //    监听页面的点击/滚轮后自动恢复播放并解锁声音。一次性触发后移除监听。
-  //    注：只监听 click/wheel——pointerdown、touchstart、keydown 都在 click 之前触发，
-  //        若监听它们，用户点击播放按钮时会先于 togglePlay 触发兜底 play()，
-  //        导致 click 时 togglePlay 误判 audio 已在播而反向暂停（要点两下才播）。
-  //        click 冒泡到 document 前已被按钮的 stopPropagation 拦截，无冲突。
-  useEffect(() => {
-    if (!currentSong) return;
-    if (isPlayingRef.current && !isMuted) return;
-    const events = ['click', 'wheel'];
-    const onInteract = () => {
-      if (!audioRef.current) return;
-      audioRef.current.muted = false;
-      setIsMuted(false);
-      userPausedRef.current = false;
-      audioRef.current.play()
-        .then(() => setPlayingState(true))
-        .catch(() => {});
-      events.forEach(ev => document.removeEventListener(ev, onInteract));
-    };
-    events.forEach(ev => document.addEventListener(ev, onInteract));
-    return () => events.forEach(ev => document.removeEventListener(ev, onInteract));
-  }, [isPlaying, isMuted, currentSong]);
-
   // 🌟 播放/暂停：直接读 audio 元素的实时状态（audio.paused）判断，
   //    不依赖 React 的 isPlaying 闭包值，避免快速点击时因渲染滞后走错分支（不灵敏）。
   const togglePlay = () => {
@@ -302,23 +278,15 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  // 🌟 进入网站自动播放：先尝试带声音自动播放（常访客 / MEI 放行即直接出声）；
-  //    若被浏览器自动播放策略拦截，则静音自动播放；
-  //    首次交互后自动解锁 / 恢复播放由上面的「全局交互兜底」effect 统一处理。
+  // 🌟 进入网站自动播放：仅尝试带声音自动播放（常访客 / MEI 放行即直接出声）。
+  //    若被浏览器自动播放策略拦截则保持未播放状态，由用户点击播放按钮启动。
   const startAutoplay = () => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = false;
     audio.play()
       .then(() => setPlayingState(true))
-      .catch(() => {
-        // 带声音自动播放被拦截 -> 静音自动播放
-        audio.muted = true;
-        setIsMuted(true);
-        audio.play()
-          .then(() => setPlayingState(true))
-          .catch(() => setPlayingState(false));
-      });
+      .catch(() => setPlayingState(false));
   };
 
   return (
@@ -329,13 +297,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         playSong, setVolume, toggleMute, setMuted, togglePlayMode, startAutoplay // 暴露新方法
     }}>
       {children}
-
-      {/* 🔊 全站：静音自动播放中的解锁提示（首次点击/按键/滚轮后自动消失） */}
-      {isPlaying && isMuted && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
-          🔊 点击页面任意位置开启声音 ♪
-        </div>
-      )}
 
       {currentSong && (
         <audio
