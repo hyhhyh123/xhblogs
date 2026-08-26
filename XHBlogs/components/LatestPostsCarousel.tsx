@@ -27,6 +27,15 @@ export default function LatestPostsCarousel({ posts }: { posts: any[] }) {
       {/* 整个卡片的点击跳转区域 */}
       <Link href={currentPost.slug === 'none' ? '#' : `/posts/${currentPost.slug}`} className="absolute inset-0 z-20" aria-label={`阅读 ${currentPost.title}`} />
 
+      {/* 查看全部文章入口 (独立于整卡跳转, 置于覆盖层之上) */}
+      <Link
+        href="/posts"
+        className="absolute top-4 right-4 z-30 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-xs text-white/90 font-medium shadow-lg flex items-center gap-1 transition-colors hover:bg-indigo-500/80 hover:border-transparent hover:text-white"
+        aria-label="查看全部文章"
+      >
+        查看全部<i className="ri-arrow-right-line text-[11px] leading-none"></i>
+      </Link>
+
       {/* 带有渐变交叉淡入淡出的图片背景 */}
       <AnimatePresence mode="wait">
         <motion.div
