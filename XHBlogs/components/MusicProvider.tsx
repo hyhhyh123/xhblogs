@@ -177,12 +177,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   }, [volume, isMuted]);
 
   // 🌟 全局交互兜底：当音乐没在播、或仍处于静音自动播放状态时，
-  //    监听页面的首次点击/移动/滚动等交互，自动恢复播放并解锁声音，
+  //    监听页面的明确交互（点击/按键/滚轮/触摸）后自动恢复播放并解锁声音，
   //    兑现「点击页面任意位置即可播放」的提示。一次性触发后移除监听。
+  //    注：刻意不监听 mousemove——鼠标移动会与「点完暂停后继续浏览」的
+  //        日常操作冲突，误触发恢复播放；且 mousemove 不属于有效的 user activation。
   useEffect(() => {
     if (!currentSong) return;
     if (isPlaying && !isMuted) return;
-    const events = ['click', 'mousemove', 'touchstart', 'keydown', 'pointerdown', 'wheel'];
+    const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'wheel'];
     const onInteract = () => {
       if (!audioRef.current) return;
       audioRef.current.muted = false;
@@ -313,10 +315,10 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }}>
       {children}
 
-      {/* 🔊 全站：静音自动播放中的解锁提示（首次交互后自动消失） */}
+      {/* 🔊 全站：静音自动播放中的解锁提示（首次点击/按键/滚轮后自动消失） */}
       {isPlaying && isMuted && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
-          🔊 点击 / 移动任意位置开启声音 ♪
+          🔊 点击页面任意位置开启声音 ♪
         </div>
       )}
 
