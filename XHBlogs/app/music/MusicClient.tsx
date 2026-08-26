@@ -150,12 +150,6 @@ export default function MusicClient() {
 
       <Navbar />
 
-      {!isPlaying && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-indigo-500/90 text-white text-sm font-bold shadow-xl shadow-indigo-500/30 animate-pulse pointer-events-none">
-          点击页面任意位置即可播放 ♪
-        </div>
-      )}
-
       <PageTransition>
         <div className="w-full max-w-7xl mx-auto mt-24 md:mt-28 px-4 sm:px-6 md:px-10 relative z-10">
           <div className="animate-fade-in-up mb-6 md:mb-10 text-center md:text-left">
