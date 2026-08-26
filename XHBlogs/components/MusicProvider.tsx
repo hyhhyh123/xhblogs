@@ -180,14 +180,15 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   }, [volume, isMuted]);
 
   // 🌟 全局交互兜底：当音乐没在播、或仍处于静音自动播放状态时，
-  //    监听页面的明确交互（点击/按键/滚轮/触摸）后自动恢复播放并解锁声音，
-  //    兑现「点击页面任意位置即可播放」的提示。一次性触发后移除监听。
-  //    注：刻意不监听 mousemove——鼠标移动会与「点完暂停后继续浏览」的
-  //        日常操作冲突，误触发恢复播放；且 mousemove 不属于有效的 user activation。
+  //    监听页面的点击/滚轮后自动恢复播放并解锁声音。一次性触发后移除监听。
+  //    注：只监听 click/wheel——pointerdown、touchstart、keydown 都在 click 之前触发，
+  //        若监听它们，用户点击播放按钮时会先于 togglePlay 触发兜底 play()，
+  //        导致 click 时 togglePlay 误判 audio 已在播而反向暂停（要点两下才播）。
+  //        click 冒泡到 document 前已被按钮的 stopPropagation 拦截，无冲突。
   useEffect(() => {
     if (!currentSong) return;
     if (isPlayingRef.current && !isMuted) return;
-    const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'wheel'];
+    const events = ['click', 'wheel'];
     const onInteract = () => {
       if (!audioRef.current) return;
       audioRef.current.muted = false;
