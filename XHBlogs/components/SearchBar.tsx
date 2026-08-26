@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface Post {
@@ -43,6 +44,7 @@ export default function SearchBar({ posts = [] }: { posts: Post[] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -69,7 +71,14 @@ export default function SearchBar({ posts = [] }: { posts: Post[] }) {
 
   return (
     <div className="relative w-full max-w-2xl mx-auto mb-10 z-[100]" ref={containerRef}>
-      <form className="relative group" onSubmit={(e) => e.preventDefault()}>
+      <form className="relative group" onSubmit={(e) => {
+        e.preventDefault();
+        const q = searchQuery.trim();
+        if (q) {
+          setIsOpen(false);
+          router.push(`/search?q=${encodeURIComponent(q)}`);
+        }
+      }}>
 
         {/* 先渲染 Input */}
         <input
@@ -154,6 +163,14 @@ export default function SearchBar({ posts = [] }: { posts: Post[] }) {
                     )}
                   </Link>
                 ))}
+                {/* 🌟 查看全部结果：跳转到独立搜索页 */}
+                <Link
+                  href={`/search?q=${encodeURIComponent(searchQuery.trim())}`}
+                  onClick={() => setIsOpen(false)}
+                  className="px-6 py-4 text-center text-sm font-black text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
+                >
+                  查看全部结果 →
+                </Link>
               </div>
             ) : (
               <div className="px-6 py-12 text-center flex flex-col items-center gap-3">
