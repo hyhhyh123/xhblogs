@@ -124,10 +124,34 @@ function getRecentPosts(currentSlug: string) {
   }).filter(p => p.slug !== currentSlug).slice(0, 3);
 }
 
+// 🌟 上一篇 / 下一篇：按日期倒序排列后，取当前文章的前后相邻两篇
+function getAdjacentPosts(currentSlug: string) {
+  const postsDirectory = path.join(process.cwd(), 'posts');
+  let fileNames: string[] = [];
+  try { fileNames = fs.readdirSync(postsDirectory).filter(f => f.endsWith('.md')); } catch (e) {}
+  if (fileNames.length === 0) return { prev: null, next: null };
+
+  const all = fileNames.map(f => {
+    const s = f.replace(/\.md$/, '');
+    const c = fs.readFileSync(path.join(postsDirectory, f), 'utf8');
+    const { data } = matter(c);
+    return { slug: s, title: data.title || '无标题', date: data.date || '1970-01-01' };
+  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const idx = all.findIndex(p => p.slug === currentSlug);
+  if (idx === -1) return { prev: null, next: null };
+
+  return {
+    prev: idx > 0 ? all[idx - 1] : null,        // 上一篇（更新的）
+    next: idx < all.length - 1 ? all[idx + 1] : null, // 下一篇（更早的）
+  };
+}
+
 export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const postData = await getPostData(resolvedParams.slug);
   const recentPosts = getRecentPosts(resolvedParams.slug);
+  const { prev, next } = getAdjacentPosts(resolvedParams.slug);
 
   return (
     <div className="min-h-screen relative pb-20">
@@ -259,6 +283,45 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
                   dangerouslySetInnerHTML={{ __html: postData.contentHtml }}
                 />
               </div>
+
+              {/* 🌟 上一篇 / 下一篇导航 */}
+              {(prev || next) && (
+                <div className="mt-10 md:mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {prev ? (
+                    <Link
+                      href={`/posts/${prev.slug}`}
+                      className="group bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-white/10 p-4 md:p-5 shadow-lg hover:shadow-2xl hover:-translate-y-0.5 hover:bg-indigo-50/60 dark:hover:bg-indigo-500/10 transition-all duration-500"
+                    >
+                      <span className="flex items-center gap-1.5 text-xs font-black text-indigo-500 dark:text-indigo-400 mb-1.5">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+                        上一篇
+                      </span>
+                      <span className="block text-sm md:text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors line-clamp-2">
+                        {prev.title}
+                      </span>
+                    </Link>
+                  ) : (
+                    <div className="hidden sm:block" />
+                  )}
+
+                  {next ? (
+                    <Link
+                      href={`/posts/${next.slug}`}
+                      className="group bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-white/10 p-4 md:p-5 shadow-lg hover:shadow-2xl hover:-translate-y-0.5 hover:bg-indigo-50/60 dark:hover:bg-indigo-500/10 transition-all duration-500 text-right"
+                    >
+                      <span className="flex items-center justify-end gap-1.5 text-xs font-black text-indigo-500 dark:text-indigo-400 mb-1.5">
+                        下一篇
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                      </span>
+                      <span className="block text-sm md:text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors line-clamp-2">
+                        {next.title}
+                      </span>
+                    </Link>
+                  ) : (
+                    <div className="hidden sm:block" />
+                  )}
+                </div>
+              )}
 
               <div className="mt-12 md:mt-16">
                 <Comments />
