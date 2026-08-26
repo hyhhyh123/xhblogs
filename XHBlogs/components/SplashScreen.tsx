@@ -16,7 +16,7 @@ export default function SplashScreen() {
       setShow(true);
       const timer = setTimeout(() => {
         exitSplash();
-      }, 2200);
+      }, 1200);
       return () => clearTimeout(timer);
     } else {
       // 容错处理：确保直接访问时类名存在
@@ -31,7 +31,7 @@ export default function SplashScreen() {
     // 【核心解封】：动画快结束时，给 html 加上类名，CSS 会自动把内容显示出来
     setTimeout(() => {
       document.documentElement.classList.add('splash-seen');
-    }, 500);
+    }, 200);
   };
 
   if (!isMounted) return null;
@@ -41,9 +41,10 @@ export default function SplashScreen() {
       {show && (
         <motion.div
           key="splash-screen-container"
+          onClick={exitSplash}
           exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
-          className="fixed inset-0 z-[100000] flex flex-col items-center justify-center bg-white dark:bg-slate-950"
+          className="fixed inset-0 z-[100000] flex flex-col items-center justify-center bg-white dark:bg-slate-950 cursor-pointer"
         >
           <div className="relative z-10 flex flex-col items-center">
             {/* 头像光环 */}

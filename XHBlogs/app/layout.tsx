@@ -1,5 +1,6 @@
 import 'katex/dist/katex.min.css';
 import type { Metadata } from "next";
+import dynamic from 'next/dynamic';
 import { Geist, Geist_Mono, Noto_Serif_SC } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
@@ -7,14 +8,15 @@ import BackgroundEffects from "../components/BackgroundEffects";
 import { MusicProvider } from "../components/MusicProvider";
 import AutoPlayMusic from "../components/AutoPlayMusic";
 import { siteConfig } from "../siteConfig";
-import ClickEffect from "../components/ClickEffect";
 import BackgroundSlider from "../components/BackgroundSlider";
 import GlobalToolbox from "../components/GlobalToolbox";
 import SplashScreen from "../components/SplashScreen";
-import CyberCat from '../components/CyberCat';
-import DanmakuBackground from '../components/DanmakuBackground';
-
 import MobileBackButton from '../components/MobileBackButton';
+
+// 🌟 纯装饰动效改为动态加载(ssr:false), 不进首屏 HTML/初始 JS, 减少首屏阻塞
+const ClickEffect = dynamic(() => import('../components/ClickEffect'), { ssr: false });
+const CyberCat = dynamic(() => import('../components/CyberCat'), { ssr: false });
+const DanmakuBackground = dynamic(() => import('../components/DanmakuBackground'), { ssr: false });
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
