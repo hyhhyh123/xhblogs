@@ -7,11 +7,15 @@ import BackgroundEffects from "../components/BackgroundEffects";
 import { MusicProvider } from "../components/MusicProvider";
 import AutoPlayMusic from "../components/AutoPlayMusic";
 import { siteConfig } from "../siteConfig";
+import { Analytics } from '@vercel/analytics/next';
+import ClickEffect from "../components/ClickEffect";
 import BackgroundSlider from "../components/BackgroundSlider";
 import GlobalToolbox from "../components/GlobalToolbox";
 import SplashScreen from "../components/SplashScreen";
+import CyberCat from '../components/CyberCat';
+import DanmakuBackground from '../components/DanmakuBackground';
+
 import MobileBackButton from '../components/MobileBackButton';
-import DeferredEffects from '../components/DeferredEffects';
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -89,6 +93,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </div>
               </div>
 
+              {/* 隐藏手机端弹幕 */}
+              <div className="hidden md:block">
+                <DanmakuBackground />
+              </div>
+
               <div className="relative z-10 flex-1 flex flex-col">
                 {children}
               </div>
@@ -103,10 +112,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <div className="md:hidden block">
                 <MobileBackButton />
               </div>
-            </div>
 
-            {/* 纯装饰动效（弹幕/点击特效/赛博猫）延迟到空闲时挂载, 不阻塞首屏 */}
-            <DeferredEffects />
+              {/* 隐藏手机端点击粒子 */}
+              <div className="hidden md:block">
+                <ClickEffect />
+              </div>
+            </div>
 
             <style suppressHydrationWarning dangerouslySetInnerHTML={{ __html: `
               @keyframes gradientMove { 
@@ -116,6 +127,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               }
             `}} />
           </MusicProvider>
+
+          <div className="hidden md:block">
+            <CyberCat />
+          </div>
+
+          <Analytics />
 
         </ThemeProvider>
       </body>
